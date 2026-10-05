@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 // Types
 import type { StickyNote } from '../models/StickyNote';
@@ -9,7 +10,9 @@ type State = {
 
 type Actions = {
     addNote: (note: StickyNote) => void;
-    updateNote: (id: string, updatedFields: Partial<StickyNote>) => void;
+    updateColor: (id: string, color: string) => void;
+    updateContent: (id: string, content: string) => void;
+    updateSize: (id: string, size: { width: number; height: number }) => void;
     /** Moves a note to a new position in cardinal directions x and y */
     moveNoteCardinal: (id: string, x: number, y: number) => void;
     /** Moves a note one step forward in the z-index */
@@ -30,12 +33,26 @@ const intialState: State = {
     notes: [],
 }
 
-export const useStickyNotesStore = create<StickyNotesStore>((set) => ({
+const unavailableStorage = {
+    getItem: () => null,
+    setItem: () => undefined,
+    removeItem: () => undefined,
+};
+
+export const useStickyNotesStore = create<StickyNotesStore>()(persist((set) => ({
     ...intialState,
     addNote: (note: StickyNote) => set((state) => ({ notes: [...state.notes, note] })),
 
-    updateNote: (id: string, updatedFields: Partial<StickyNote>) => set((state) => ({
-        notes: state.notes.map((note) => note.id === id ? { ...note, ...updatedFields } : note)
+    updateColor: (id: string, color: string) => set((state) => ({
+        notes: state.notes.map((note) => note.id === id ? { ...note, color } : note)
+    })),
+
+    updateContent: (id: string, content: string) => set((state) => ({
+        notes: state.notes.map((note) => note.id === id ? { ...note, content } : note)
+    })),
+
+    updateSize: (id: string, size: { width: number; height: number }) => set((state) => ({
+        notes: state.notes.map((note) => note.id === id ? { ...note, size } : note)
     })),
 
     moveNoteCardinal: (id: string, x: number, y: number) => set((state) => ({
@@ -67,4 +84,8 @@ export const useStickyNotesStore = create<StickyNotesStore>((set) => ({
     deleteNote: (id: string) => set((state) => ({ notes: state.notes.filter((note) => note.id !== id) })),
     
     reset: () => set(intialState),
+}), {
+    name: 'sticky-notes-storage',
+    storage: createJSONStorage(() => globalThis.localStorage ?? unavailableStorage),
+    partialize: (state) => ({ notes: state.notes }),
 }));

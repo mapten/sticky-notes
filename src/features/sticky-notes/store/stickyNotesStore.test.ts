@@ -1,4 +1,23 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
+/** This is a mock storage for testing purposes, to check that the store persists data correctly */
+const storage = vi.hoisted(() => {
+  const values = new Map<string, string>();
+  const memoryStorage: Storage = {
+    get length() {
+      return values.size;
+    },
+    clear: () => values.clear(),
+    getItem: (key) => values.get(key) ?? null,
+    key: (index) => Array.from(values.keys())[index] ?? null,
+    removeItem: (key) => values.delete(key),
+    setItem: (key, value) => values.set(key, value),
+  };
+
+  vi.stubGlobal('localStorage', memoryStorage);
+  return memoryStorage;
+});
+
 import { useStickyNotesStore, type StickyNotesStore } from './stickyNotesStore';
 
 const initializeStore = () => {
@@ -11,6 +30,7 @@ describe('stickyNotesStore', () => {
 
   beforeEach(() => {
     store = initializeStore();
+    vi.unstubAllGlobals();
   });
 
   it('starts empty', () => {
@@ -22,7 +42,7 @@ describe('stickyNotesStore', () => {
   it('adds a note', () => {
     store.addNote({
       id: 'n1',
-      title: 'Note 1',
+      size: { width: 100, height: 100 },
       content: 'First note',
       color: '#fef3c7',
       position: {
@@ -41,32 +61,63 @@ describe('stickyNotesStore', () => {
     });
   });
 
-  it('updates an existing note', () => {
+  it('updates an existing content', () => {
     store.addNote({
       id: 'n1',
-      title: 'Note 1',
+      size: { width: 100, height: 100 },
       content: 'Original',
       color: '#fef3c7',
       position: { x: 0, y: 0, z: 0 },
     });
 
-    store.updateNote('n1', {
-      content: 'Updated',
-      position: { x: 25, y: 30, z: 0 },
-    });
+    store.updateContent('n1', 'Updated');
 
     expect(useStickyNotesStore.getState().notes[0]).toMatchObject({
       id: 'n1',
       content: 'Updated',
-      position: { x: 25, y: 30, z: 0 },
+      position: { x: 0, y: 0, z: 0 },
       color: '#fef3c7',
+    });
+  });
+
+  it('updates the color of an existing note', () => {
+    store.addNote({
+      id: 'n1',
+      size: { width: 100, height: 100 },
+      content: 'Color me',
+      color: '#fef3c7',
+      position: { x: 0, y: 0, z: 0 },
+    });
+
+    store.updateColor('n1', '#fde68a');
+
+    expect(useStickyNotesStore.getState().notes[0]).toMatchObject({
+      id: 'n1',
+      color: '#fde68a',
+    });
+  });
+
+  it('updates the size of an existing note', () => {
+    store.addNote({
+      id: 'n1',
+      size: { width: 100, height: 100 },
+      content: 'Resize me',
+      color: '#fef3c7',
+      position: { x: 0, y: 0, z: 0 },
+    });
+
+    store.updateSize('n1', { width: 150, height: 150 });
+
+    expect(useStickyNotesStore.getState().notes[0]).toMatchObject({
+      id: 'n1',
+      size: { width: 150, height: 150 },
     });
   });
 
   it('moves a note to a new position', () => {
     store.addNote({
       id: 'n1',
-      title: 'Note 1',
+      size: { width: 100, height: 100 },
       content: 'Move me',
       color: '#fef3c7',
       position: { x: 0, y: 0, z: 0 },
@@ -80,7 +131,7 @@ describe('stickyNotesStore', () => {
   it('moves a note one step forward in the z-index', () => {
     store.addNote({
       id: 'n1',
-      title: 'Note 1',
+      size: { width: 100, height: 100 },
       content: 'Move me',
       color: '#fef3c7',
       position: { x: 0, y: 0, z: 0 },
@@ -94,7 +145,7 @@ describe('stickyNotesStore', () => {
   it('moves a note one step backward in the z-index', () => {
      store.addNote({
       id: 'n1',
-      title: 'Note 1',
+      size: { width: 100, height: 100 },
       content: 'Move me',
       color: '#fef3c7',
       position: { x: 0, y: 0, z: 0 },
@@ -109,7 +160,7 @@ describe('stickyNotesStore', () => {
 
     store.addNote({
       id: 'n1',
-      title: 'Note 1',
+      size: { width: 100, height: 100 },
       content: 'Move me',
       color: '#fef3c7',
       position: { x: 0, y: 0, z: 0 },
@@ -117,7 +168,7 @@ describe('stickyNotesStore', () => {
 
     store.addNote({
       id: 'n2',
-      title: 'Note 2',
+      size: { width: 100, height: 100 },
       content: 'I am on top',
       color: '#fde68a',
       position: { x: 10, y: 10, z: 1 },
@@ -131,7 +182,7 @@ describe('stickyNotesStore', () => {
   it('moves a note to the back (lowest z-index)', () => {
     store.addNote({
       id: 'n1',
-      title: 'Note 1',
+      size: { width: 100, height: 100 },
       content: 'Move me',
       color: '#fef3c7',
       position: { x: 0, y: 0, z: 0 },
@@ -139,7 +190,7 @@ describe('stickyNotesStore', () => {
 
     store.addNote({
       id: 'n2',
-      title: 'Note 2',
+      size: { width: 100, height: 100 },
       content: 'I am on top',
       color: '#fde68a',
       position: { x: 10, y: 10, z: 1 },
@@ -153,14 +204,14 @@ describe('stickyNotesStore', () => {
   it('removes a note by id', () => {
     store.addNote({
       id: 'n1',
-      title: 'Note 1',
+      size: { width: 100, height: 100 },
       content: 'One',
       color: '#fef3c7',
       position: { x: 10, y: 20, z: 0 },
     });
     store.addNote({
       id: 'n2',
-      title: 'Note 2',
+      size: { width: 100, height: 100 },
       content: 'Two',
       color: '#fde68a',
       position: { x: 30, y: 40, z: 0 },
@@ -174,7 +225,7 @@ describe('stickyNotesStore', () => {
   it('resets the store to its initial state', () => {
     store.addNote({
       id: 'n1',
-      title: 'Note 1',
+      size: { width: 100, height: 100 },
       content: 'One',
       color: '#fef3c7',
       position: { x: 10, y: 20, z: 0 },
@@ -183,5 +234,29 @@ describe('stickyNotesStore', () => {
     store.reset();
 
     expect(useStickyNotesStore.getState().notes).toEqual([]);
+  });
+
+  it('saves notes to localStorage and restores them during hydration', async () => {
+    storage.clear();
+    const note = {
+      id: 'persisted-note',
+      size: { width: 180, height: 120 },
+      content: 'Remember me',
+      color: '#fef3c7',
+      position: { x: 20, y: 30, z: 1 },
+    };
+
+    store.addNote(note);
+
+    const persistedValue = storage.getItem('sticky-notes-storage');
+    expect(JSON.parse(persistedValue!)).toMatchObject({
+      state: { notes: [note] },
+    });
+
+    useStickyNotesStore.setState({ notes: [] });
+    storage.setItem('sticky-notes-storage', persistedValue!);
+    await useStickyNotesStore.persist.rehydrate();
+
+    expect(useStickyNotesStore.getState().notes).toEqual([note]);
   });
 });

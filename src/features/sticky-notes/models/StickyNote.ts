@@ -1,7 +1,10 @@
 export type StickyNote = {
   id: string;
-  title: string;
   color: string;
+  size: {
+    width: number;
+    height: number;
+  };
   content: string;
   position: {
     x: number;
