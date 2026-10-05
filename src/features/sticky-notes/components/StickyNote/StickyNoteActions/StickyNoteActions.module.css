@@ -1,0 +1,43 @@
+.sticky-note-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem;
+  background-color: transparent;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.emoji-button {
+  background-color: transparent;
+  padding: 0.08rem 0.2rem;
+  border: none;
+  cursor: pointer;
+  font-size: 0.7rem;
+  transition: transform 0.2s ease-in-out;
+}
+
+.emoji-button:disabled {
+  opacity: 0.35;
+  filter: grayscale(1);
+  cursor: not-allowed;
+}
+
+.color-picker-anchor {
+  position: relative;
+  display: flex;
+}
+
+.color-picker {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
