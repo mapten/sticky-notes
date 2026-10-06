@@ -1,5 +1,6 @@
-import { useRef } from 'react';
+import { useState } from 'react';
 import styles from './StickyNoteActions.module.css';
+import { StickyNoteActionsColorPalette } from './StickyNoteActionsColorPalette/StickyNoteActionsColorPalette';
 
 type Props = {
   isEditing?: boolean;
@@ -19,44 +20,50 @@ type Props = {
 };
 
 export const StickyNoteActions = ({isEditing = false, disabled, onMoveToFront, onMoveOneStepForward, onMoveOneStepBackward, onMoveToBack, onEditNote, onCancelEdit, onEditColor}: Props) => {
-  const colorInputRef = useRef<HTMLInputElement>(null);
+  const [isColorPaletteOpen, setIsColorPaletteOpen] = useState(false);
   
   return (
     <div className={styles['sticky-note-actions']}>
-      <button
-        title="Move to Front"
-        disabled={disabled.moveToFront}
-        onClick={onMoveToFront}
-        className={styles['emoji-button']}
-      >
-        ⏫
-      </button>
-      <button
-        title="Move One Step Forward"
-        disabled={disabled.moveOneStepForward}
-        onClick={onMoveOneStepForward}
-        className={styles['emoji-button']}
-      >
-        🔽
-      </button>
+
       <button
         title="Move to Back"
-        disabled={disabled.moveToBack}
-        onClick={ onMoveToBack}
-        className={styles['emoji-button']}
-      >
-        🔼
-      </button>
-      <button
-        title="Move One Step Backward"
-        disabled={disabled.moveOneStepBackward}
-        onClick={onMoveOneStepBackward}
+        data-tooltip="Move to Back"
+        aria-disabled={disabled.moveToBack ?? false}
+        onClick={disabled.moveToBack ? undefined : onMoveToBack}
         className={styles['emoji-button']}
       >
         ⏬
       </button>
       <button
+        title="Move One Step Backward"
+        data-tooltip="Move One Step Backward"
+        aria-disabled={disabled.moveOneStepBackward ?? false}
+        onClick={disabled.moveOneStepBackward ? undefined : onMoveOneStepBackward}
+        className={styles['emoji-button']}
+      >
+        🔽
+      </button>
+      <button
+        title="Move One Step Forward"
+        data-tooltip="Move One Step Forward"
+        aria-disabled={disabled.moveOneStepForward ?? false}
+        onClick={disabled.moveOneStepForward ? undefined : onMoveOneStepForward}
+        className={styles['emoji-button']}
+      >
+        🔼
+      </button>
+      <button
+        title="Move to Front"
+        data-tooltip="Move to Front"
+        aria-disabled={disabled.moveToFront ?? false}
+        onClick={disabled.moveToFront ? undefined : onMoveToFront}
+        className={styles['emoji-button']}
+      >
+        ⏫
+      </button>
+      <button
         title={isEditing ? 'Save' : 'Edit Note'}
+        data-tooltip={isEditing ? 'Save' : 'Edit Note'}
         onClick={onEditNote}
         className={styles['emoji-button']}
       >
@@ -65,6 +72,7 @@ export const StickyNoteActions = ({isEditing = false, disabled, onMoveToFront, o
       {isEditing && onCancelEdit && (
         <button
           title="Cancel"
+          data-tooltip="Cancel"
           onClick={onCancelEdit}
           className={styles['emoji-button']}
         >
@@ -74,19 +82,22 @@ export const StickyNoteActions = ({isEditing = false, disabled, onMoveToFront, o
       <div className={styles['color-picker-anchor']}>
         <button
         title="Edit Color"
-        onClick={() => colorInputRef.current?.click()}
+        data-tooltip="Edit Color"
+        aria-expanded={isColorPaletteOpen}
+        aria-haspopup="true"
+        onClick={() => setIsColorPaletteOpen((isOpen) => !isOpen)}
         className={styles['emoji-button']}
       >
         🎨
       </button>
-      <input
-        ref={colorInputRef}
-        type="color"
-        aria-label="Choose note color"
-        onChange={(e) => onEditColor(e.target.value)}
-        className={styles['color-picker']}
-        tabIndex={-1}
-      />
+      {isColorPaletteOpen && (
+        <StickyNoteActionsColorPalette
+          onSelect={(color) => {
+            onEditColor(color);
+            setIsColorPaletteOpen(false);
+          }}
+        />
+      )}
       </div>
     </div>
   );

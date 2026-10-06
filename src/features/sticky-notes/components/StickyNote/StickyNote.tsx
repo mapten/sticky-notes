@@ -6,6 +6,7 @@ import { useStickyNotesStore } from '../../store/stickyNotesStore';
 import styles from './StickyNote.module.css';
 import { StickyNoteActions } from './StickyNoteActions/StickyNoteActions';
 import { useDismissibleFocus } from './hooks/useDismissibleFocus';
+import { useStickyNoteActionsPlacement } from './hooks/useStickyNoteActionsPlacement';
 import { useStickyNoteDrag } from './hooks/useStickyNoteDrag';
 import { useStickyNoteResize } from './hooks/useStickyNoteResize';
 import { getNoteLayerState } from './utils/getNoteLayerState';
@@ -13,6 +14,7 @@ import { getNoteLayerState } from './utils/getNoteLayerState';
 type Props = {
   id: StickyNoteModel['id'];
   constrainToParent?: boolean;
+  initiallyEditing?: boolean;
   onDragPointerMove?: (pointer: { x: number; y: number }) => void;
   onDragFinished?: () => void;
 };
@@ -23,11 +25,12 @@ const FALLBACK_SIZE = {
   height: STICKY_NOTE_MIN_HEIGHT,
 };
 
-export const StickyNote = ({ id, constrainToParent = false, onDragPointerMove, onDragFinished }: Props) => {
-  const [isEditing, setIsEditing] = useState(false);
+export const StickyNote = ({ id, constrainToParent = false, initiallyEditing = false, onDragPointerMove, onDragFinished }: Props) => {
+  const [isEditing, setIsEditing] = useState(initiallyEditing);
   const [draftContent, setDraftContent] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
+  const [isFocused, setIsFocused] = useState(initiallyEditing);
   const stickyNoteRef = useRef<HTMLDivElement>(null);
+  const stickyNoteActionsRef = useRef<HTMLDivElement>(null);
 
   const {
     notes,
@@ -45,6 +48,16 @@ export const StickyNote = ({ id, constrainToParent = false, onDragPointerMove, o
   const size = currentNote?.size ?? FALLBACK_SIZE;
 
   const handleLostFocus = useCallback(() => {
+    if (isEditing) {
+      updateContent(id, draftContent);
+    }
+
+    setIsFocused(false);
+    setIsEditing(false);
+    setDraftContent('');
+  }, [draftContent, id, isEditing, updateContent]);
+
+  const handleEscape = useCallback(() => {
     setIsFocused(false);
     setIsEditing(false);
     setDraftContent('');
@@ -54,6 +67,7 @@ export const StickyNote = ({ id, constrainToParent = false, onDragPointerMove, o
     elementRef: stickyNoteRef,
     active: isFocused,
     onDismiss: handleLostFocus,
+    onEscape: handleEscape,
   });
 
   const { displayedPosition, isDragging, dragHandlers } = useStickyNoteDrag({
@@ -79,6 +93,14 @@ export const StickyNote = ({ id, constrainToParent = false, onDragPointerMove, o
     constrainToParent,
     onResizeStart: () => setIsFocused(true),
     onResizeEnd: (nextSize) => updateSize(id, nextSize),
+  });
+
+  const actionsBelowNote = useStickyNoteActionsPlacement({
+    noteRef: stickyNoteRef,
+    actionsRef: stickyNoteActionsRef,
+    active: isFocused,
+    enabled: constrainToParent,
+    position: displayedPosition,
   });
 
   if (!currentNote) {
@@ -141,7 +163,8 @@ export const StickyNote = ({ id, constrainToParent = false, onDragPointerMove, o
     >
       {isFocused && (
         <div
-          className={styles['sticky-note-actions-container']}
+          ref={stickyNoteActionsRef}
+          className={`${styles['sticky-note-actions-container']} ${actionsBelowNote ? styles['sticky-note-actions-below'] : ''}`}
           onPointerDown={(event) => event.stopPropagation()}
         >
           <StickyNoteActions

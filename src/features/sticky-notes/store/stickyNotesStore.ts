@@ -11,7 +11,10 @@ type State = {
 }
 
 type Actions = {
-    addNote: (note?: StickyNote) => void;
+    addNote: (
+        note?: StickyNote,
+        initialPosition?: Pick<StickyNote['position'], 'x' | 'y'>,
+    ) => string;
     updateColor: (id: string, color: string) => void;
     updateContent: (id: string, content: string) => void;
     updateSize: (id: string, size: { width: number; height: number }) => void;
@@ -31,12 +34,15 @@ type Actions = {
 
 export type StickyNotesStore = State & Actions;
 
-const createInitialNote = (z: number): StickyNote => ({
+const createInitialNote = (
+    z: number,
+    initialPosition: Pick<StickyNote['position'], 'x' | 'y'> = { x: 0, y: 0 },
+): StickyNote => ({
     id: nanoid(),
     color: STICKY_NOTE_BASE_COLOR,
     size: { width: STICKY_NOTE_MIN_WIDTH, height: STICKY_NOTE_MIN_HEIGHT },
     content: '',
-    position: { x: 0, y: 0, z },
+    position: { ...initialPosition, z },
 });
 
 const intialState: State = {
@@ -76,13 +82,19 @@ const reorderNotes = (
     return normalizeNoteLayers(orderedNotes);
 };
 
-export const useStickyNotesStore = create<StickyNotesStore>()(persist((set) => ({
+export const useStickyNotesStore = create<StickyNotesStore>()(persist((set, get) => ({
     ...intialState,
-    addNote: (note: StickyNote | undefined) => set((state) => {
-      const newZ = state.notes.length > 0 ? Math.max(...state.notes.map((note) => note.position.z)) + 1 : 1;
+        addNote: (
+            note?: StickyNote,
+            initialPosition?: Pick<StickyNote['position'], 'x' | 'y'>,
+        ) => {
+            const notes = get().notes;
+            const newZ = notes.length > 0 ? Math.max(...notes.map((note) => note.position.z)) + 1 : 1;
+            const addedNote = note ?? createInitialNote(newZ, initialPosition);
 
-      return { notes: [...state.notes, note ?? createInitialNote(newZ)] }
-    }),
+            set((state) => ({ notes: [...state.notes, addedNote] }));
+            return addedNote.id;
+        },
 
     updateColor: (id: string, color: string) => set((state) => ({
         notes: state.notes.map((note) => note.id === id ? { ...note, color } : note)

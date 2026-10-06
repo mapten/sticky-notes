@@ -27,6 +27,11 @@
   cursor: default;
 }
 
+.sticky-note-actions-below {
+  top: calc(100% + 0.5rem);
+  bottom: auto;
+}
+
 .sticky-note-content {
   flex: 1;
   min-width: 0;

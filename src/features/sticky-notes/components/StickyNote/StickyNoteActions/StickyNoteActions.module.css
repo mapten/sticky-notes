@@ -10,6 +10,7 @@
 }
 
 .emoji-button {
+  position: relative;
   background-color: transparent;
   padding: 0.08rem 0.2rem;
   border: none;
@@ -18,10 +19,33 @@
   transition: transform 0.2s ease-in-out;
 }
 
-.emoji-button:disabled {
+.emoji-button[aria-disabled='true'] {
   opacity: 0.35;
   filter: grayscale(1);
   cursor: not-allowed;
+}
+
+.emoji-button:hover::after,
+.emoji-button:focus-visible::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 0.45rem);
+  left: 50%;
+  z-index: 10000;
+  width: max-content;
+  max-width: 12rem;
+  transform: translateX(-50%);
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.25rem;
+  background: #242424;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 400;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+  filter: none;
+  opacity: 1;
 }
 
 .color-picker-anchor {
@@ -29,15 +53,4 @@
   display: flex;
 }
 
-.color-picker {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  border: 0;
-  opacity: 0;
-  pointer-events: none;
-}
 

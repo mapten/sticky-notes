@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useStickyNotesStore } from '../../store/stickyNotesStore';
 import { StickyNote } from './StickyNote';
@@ -14,8 +14,56 @@ const note = {
 };
 
 describe('StickyNote', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   beforeEach(() => {
     useStickyNotesStore.setState({ notes: [note] });
+  });
+
+  it('keeps actions above unless that placement would be clipped', () => {
+    let noteTop = 200;
+    const { getByTestId } = render(
+      <div data-testid="note-parent">
+        <StickyNote id={note.id} constrainToParent />
+      </div>,
+    );
+    const noteElement = getByTestId(`sticky-note-${note.id}`);
+    const parentElement = getByTestId('note-parent');
+    const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRect;
+
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      const top = this === noteElement ? noteTop : 100;
+      const height = this.className.toString().includes('sticky-note-actions-container') ? 40 : 0;
+      if (this !== noteElement && this !== parentElement && height === 0) {
+        return originalGetBoundingClientRect.call(this);
+      }
+
+      return {
+        x: 0,
+        y: top,
+        top,
+        right: 240,
+        bottom: top + height,
+        left: 0,
+        width: 240,
+        height,
+        toJSON: () => ({}),
+      };
+    });
+
+    fireEvent.focus(noteElement);
+    const actions = noteElement.querySelector('div[class*="sticky-note-actions-container"]');
+    expect(actions?.className).not.toContain('sticky-note-actions-below');
+
+    noteTop = 140;
+    fireEvent(window, new Event('resize'));
+    expect(actions?.className).toContain('sticky-note-actions-below');
+
+    noteTop = 200;
+    fireEvent(window, new Event('resize'));
+    expect(actions?.className).not.toContain('sticky-note-actions-below');
   });
 
   it('enters edit mode when its content is double-clicked', async () => {
@@ -106,11 +154,14 @@ describe('StickyNote', () => {
 
     await user.dblClick(screen.getByText(note.content));
 
-    expect(screen.getByRole('textbox')).toHaveValue(note.content);
+    const textarea = screen.getByRole('textbox');
+    await user.clear(textarea);
+    await user.type(textarea, 'Discard this change');
 
     await user.keyboard('{Escape}');
 
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(useStickyNotesStore.getState().notes[0].content).toBe(note.content);
   });
 
   it('exits edit mode when the Save button is clicked', async () => {
@@ -152,12 +203,15 @@ describe('StickyNote', () => {
 
     await user.dblClick(screen.getByText(note.content));
 
-    expect(screen.getByRole('textbox')).toHaveValue(note.content);
+    const textarea = screen.getByRole('textbox');
+    await user.clear(textarea);
+    await user.type(textarea, 'Saved by clicking outside');
 
     const outsideButton = screen.getByText('Outside Button');
     await user.click(outsideButton);
 
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(useStickyNotesStore.getState().notes[0].content).toBe('Saved by clicking outside');
   });
 
   it('exits edit mode when the note loses focus', async () => {

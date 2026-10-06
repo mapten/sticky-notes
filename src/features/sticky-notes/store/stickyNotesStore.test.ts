@@ -19,6 +19,7 @@ const storage = vi.hoisted(() => {
 });
 
 import { useStickyNotesStore, type StickyNotesStore } from './stickyNotesStore';
+import { STICKY_NOTE_MIN_HEIGHT, STICKY_NOTE_MIN_WIDTH } from '../constants/stickyNote.constants';
 
 const initializeStore = () => {
   useStickyNotesStore.getState().reset();
@@ -90,7 +91,7 @@ describe('stickyNotesStore', () => {
     const addedNote = useStickyNotesStore.getState().notes[2];
 
     expect(addedNote).toMatchObject({
-      size: { width: 200, height: 200 },
+      size: { width: STICKY_NOTE_MIN_WIDTH, height: STICKY_NOTE_MIN_HEIGHT },
       content: '',
       color: '#fff59d',
       position: { x: 0, y: 0, z: 2 },
