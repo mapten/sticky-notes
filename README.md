@@ -34,6 +34,9 @@ Sticky Notes is a single-page web application for creating, moving, resizing and
 - I'd probably use a 3rd party tool to position Sticky Note Actions, like `floating-ui`. I also see that it does not work perfectly (tooltips).
 - I'd improve the edit note process. It works well, but probably it can be improved.
 - I'd use icons (like Material Icons or similar) instead of emojis.
+- I'd add end to end tests with Playwright.
+- I'd add `msw` library to simulate real API calls.
+- I'd imporve accesibility.
 - I've enjoyed working on this, so had some features that I wanted to add!
 
 ## Technologies
@@ -100,15 +103,29 @@ Builds a static version of Storybook.
 
 Lints the code with ESLint.
 
+## Work process
+
+I've used Atomic Design + Component Driven Development.
+
+- First I've drawn by hand what was going to be the application:
+  ![Sticky notes board](docs/screenshot-first-draft.png)
+
+- Created the project structure and folders.
+- Based on first draft, I've identified smaller components, and created them first. Based on this way to work, it is needed to use a library like Storybook, to run an test components, without the need of running the app.
+- I created first Sticky Notes Actions component, then Sticky Notes component + state manager with Zustand, then Sticky Notes Wrapper sub components (delete area, header), and finally Sticky Notes Wrapper.
+- While developing I've created unit tests for components. But at some point, when manually testing the application with Storybook, found multiple problems that fixed later.
+
 ## Architecture
 
-The code is organised by feature: everything related to sticky notes is in `src/features/sticky-notes`, split into `components`, `store`, `models` and `constants`. The note data (id, content, colour, size and an `x/y/z` position) lives in a single Zustand store. The store holds the domain logic: creating and deleting notes, updating them, and managing stacking order. Stacking order is always kept as the contiguous sequence 1..n, so "move one step" always swaps with the neighbouring note and z-indexes never keep growing. The store is persisted to `localStorage` with Zustand's `persist` middleware.
+The code is grouped by feature. All sticky note code is in `src/features/sticky-notes`, in the `components`, `store`, `models`, and `constants` folders.
 
 The idea was to create all functionality inside features folder, supposing that we are in a bigger frontend application, and we want to separate logic by domains. At any point, if any of the components / state / constants is needed to be used in multiple parts of the application, not only in sticky-notes domain, it will be moved to a generic folder in src (for example, src/constants). Doing that way, we decouple logic between different domains.
 
 The UI is split into small components. `StickyNoteWrapper` is the board: it adds notes and owns the trash zone. `StickyNote` renders a single note, `StickyNoteActions` is its floating toolbar and `StickyNoteActionsColorPalette` is the colour picker. The interaction logic is kept in custom hooks so the components stay declarative and the behaviour can be tested on its own. `useStickyNoteDrag`, `useStickyNoteResize` and `useStickyNoteDraw` (drawing new notes on the board) use Pointer Events with pointer capture. `useDismissibleFocus` handles clicking outside the note and pressing Escape. `useStickyNoteActionsPlacement` flips the toolbar below the note when there isn't room for it above.
 
-Performance was a main design goal. While a note is being dragged or resized, its position and size are kept only in the component's local state, so each pointer move re-renders that one note. The store, and with it `localStorage`, is updated once when the gesture ends. Drags only start after a small movement threshold, so clicks and double-clicks aren't mistaken for drags. Deletion checks whether the pointer is over the trash zone using its bounding box. The board is told about drag movement through callbacks, so notes don't depend on the trash zone directly.
+The idea was to create all functionality inside features folder, supposing that we are in a bigger frontend application, and we want to separate logic by domains. At any point, if any of the components / state / constants is needed to be used in multiple parts of the application, not only in sticky-notes domain, it will be moved to a generic folder in src (for example, src/constants). Doing that way, we decouple logic between different domains.
+
+The UI is split into small components. `StickyNoteWrapper` is the board: it adds notes and owns the trash zone. `StickyNote` renders a single note, `StickyNoteActions` is its floating toolbar and `StickyNoteActionsColorPalette` is the colour picker. The interaction logic is kept in custom hooks so the components stay declarative and the behaviour can be tested on its own. `useStickyNoteDrag`, `useStickyNoteResize` and `useStickyNoteDraw` (drawing new notes on the board) use Pointer Events with pointer capture. `useDismissibleFocus` handles clicking outside the note and pressing Escape. `useStickyNoteActionsPlacement` flips the toolbar below the note when there isn't room for it above.
 
 ## 3rd party libraries
 
