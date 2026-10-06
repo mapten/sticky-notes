@@ -45,7 +45,7 @@ describe('StickyNoteActions', () => {
     const onEditNote = vi.fn();
     const onEditColor = vi.fn();
 
-    const { getByLabelText, getByTitle } = renderUI({
+    const { getByLabelText, getByRole, getByTitle, queryByRole } = renderUI({
       onMoveToFront,
       onMoveOneStepForward,
       onMoveOneStepBackward,
@@ -53,24 +53,23 @@ describe('StickyNoteActions', () => {
       onEditNote,
       onEditColor,
     });
-    const colorInput = getByLabelText('Choose note color');
-    const colorInputClick = vi.spyOn(colorInput, 'click');
-
     getByTitle('Move to Front').click();
     getByTitle('Move One Step Forward').click();
     getByTitle('Move One Step Backward').click();
     getByTitle('Move to Back').click();
     getByTitle('Edit Note').click();
-    getByTitle('Edit Color').click();
-    fireEvent.change(colorInput, { target: { value: '#ff0000' } });
+    fireEvent.click(getByTitle('Edit Color'));
+
+    expect(getByRole('group', { name: 'Choose note color' })).toBeInTheDocument();
+    fireEvent.click(getByLabelText('Pink'));
 
     expect(onMoveToFront).toHaveBeenCalled();
     expect(onMoveOneStepForward).toHaveBeenCalled();
     expect(onMoveOneStepBackward).toHaveBeenCalled();
     expect(onMoveToBack).toHaveBeenCalled();
     expect(onEditNote).toHaveBeenCalled();
-    expect(colorInputClick).toHaveBeenCalledOnce();
-    expect(onEditColor).toHaveBeenCalledWith('#ff0000');
+    expect(onEditColor).toHaveBeenCalledWith('#f8bbd0');
+    expect(queryByRole('group', { name: 'Choose note color' })).not.toBeInTheDocument();
   });
 });
   

@@ -1,5 +1,6 @@
-import { useRef } from 'react';
+import { useState } from 'react';
 import styles from './StickyNoteActions.module.css';
+import { StickyNoteColorPalette } from './StickyNoteColorPalette/StickyNoteColorPalette';
 
 type Props = {
   isEditing?: boolean;
@@ -19,7 +20,7 @@ type Props = {
 };
 
 export const StickyNoteActions = ({isEditing = false, disabled, onMoveToFront, onMoveOneStepForward, onMoveOneStepBackward, onMoveToBack, onEditNote, onCancelEdit, onEditColor}: Props) => {
-  const colorInputRef = useRef<HTMLInputElement>(null);
+  const [isColorPaletteOpen, setIsColorPaletteOpen] = useState(false);
   
   return (
     <div className={styles['sticky-note-actions']}>
@@ -81,19 +82,21 @@ export const StickyNoteActions = ({isEditing = false, disabled, onMoveToFront, o
         <button
         title="Edit Color"
         data-tooltip="Edit Color"
-        onClick={() => colorInputRef.current?.click()}
+        aria-expanded={isColorPaletteOpen}
+        aria-haspopup="true"
+        onClick={() => setIsColorPaletteOpen((isOpen) => !isOpen)}
         className={styles['emoji-button']}
       >
         🎨
       </button>
-      <input
-        ref={colorInputRef}
-        type="color"
-        aria-label="Choose note color"
-        onChange={(e) => onEditColor(e.target.value)}
-        className={styles['color-picker']}
-        tabIndex={-1}
-      />
+      {isColorPaletteOpen && (
+        <StickyNoteColorPalette
+          onSelect={(color) => {
+            onEditColor(color);
+            setIsColorPaletteOpen(false);
+          }}
+        />
+      )}
       </div>
     </div>
   );

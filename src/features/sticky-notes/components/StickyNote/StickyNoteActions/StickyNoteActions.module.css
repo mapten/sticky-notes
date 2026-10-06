@@ -53,15 +53,4 @@
   display: flex;
 }
 
-.color-picker {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  border: 0;
-  opacity: 0;
-  pointer-events: none;
-}
 
