@@ -44,8 +44,6 @@ export const useStickyNoteResize = ({
   const resizeStateRef = useRef<ResizeState | null>(null);
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
-    // preventDefault avoids text selection / focus moving to the handle;
-    // stopPropagation prevents the note's own drag handler from starting a drag.
     event.preventDefault();
     event.stopPropagation();
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -65,8 +63,6 @@ export const useStickyNoteResize = ({
     const resizeState = resizeStateRef.current;
     if (resizeState?.pointerId !== event.pointerId) return;
 
-    // Resizing grows from the bottom-right corner, so the max size is the space
-    // between the note's top-left position and the parent's edges.
     const parent = elementRef.current?.parentElement;
     const maxWidth = constrainToParent && parent
       ? Math.max(0, parent.clientWidth - position.x)

@@ -9,14 +9,6 @@ type Options = {
   position: { x: number; y: number };
 };
 
-/**
- * Decides whether the actions toolbar should flip below the note because there is
- * not enough room above it inside the parent (the toolbar would otherwise be clipped
- * by the parent's `overflow: hidden`).
- *
- * Uses useLayoutEffect so the measurement and flip happen before paint, avoiding a
- * one-frame flicker of the toolbar in the wrong place.
- */
 export const useStickyNoteActionsPlacement = ({
   noteRef,
   actionsRef,
@@ -44,7 +36,6 @@ export const useStickyNoteActionsPlacement = ({
       const rootFontSize = Number.parseFloat(
         getComputedStyle(document.documentElement).fontSize,
       ) || 16;
-      // Must match the `0.5rem` gap used by `.sticky-note-actions-container` in StickyNote.module.css
       const actionsGap = rootFontSize * 0.5;
 
       setActionsBelowNote(

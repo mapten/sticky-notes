@@ -10,11 +10,6 @@ type Options = {
 
 /**
  * A custom hook for managing dismissible focus behavior.
- *
- * Listens at the document level (only while `active`) because the element can be
- * "focused" in React state without holding DOM focus — e.g. after a resize, whose
- * pointerdown calls preventDefault — so a blur event alone is not enough to detect
- * clicks outside.
  */
 export const useDismissibleFocus = ({ elementRef, active, onDismiss, onEscape }: Options) => {
   useEffect(() => {

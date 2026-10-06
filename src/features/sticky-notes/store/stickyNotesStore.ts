@@ -49,17 +49,12 @@ const intialState: State = {
     notes: [],
 }
 
-// No-op storage used when localStorage does not exist (e.g. non-browser environments),
-// so the persist middleware does not throw.
 const unavailableStorage = {
     getItem: () => null,
     setItem: () => undefined,
     removeItem: () => undefined,
 };
 
-// Rewrites z-indexes as a contiguous 1..n sequence following array order. Keeping z
-// contiguous (no gaps or duplicates) guarantees that a "one step" move always swaps
-// with the immediate neighbour, and that z stays bounded however many moves happen.
 const normalizeNoteLayers = (notes: StickyNote[]) => (
     notes.map((note, index) => ({
         ...note,
@@ -67,9 +62,6 @@ const normalizeNoteLayers = (notes: StickyNote[]) => (
     }))
 );
 
-// Sorts notes by z, moves the target note to the index returned by `getTargetIndex`
-// (clamped to the valid range), then renumbers every z. `lastIndex` is the last valid
-// insert position once the moved note has been removed from the list.
 const reorderNotes = (
     notes: StickyNote[],
     id: string,

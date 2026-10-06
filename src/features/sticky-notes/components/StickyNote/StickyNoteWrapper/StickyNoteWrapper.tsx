@@ -9,12 +9,9 @@ import { StickyNoteWrapperTrashZone } from './StickyNoteWrapperTrashZone/StickyN
 export const StickyNoteWrapper = () => {
 
   const [isTrashZoneActive, setIsTrashZoneActive] = useState(false);
-  // The most recently added note, which mounts directly in edit mode
   const [noteToEditId, setNoteToEditId] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const trashZoneRef = useRef<HTMLDivElement>(null);
-  // Mirrors isTrashZoneActive: the drop handler runs right after the last pointer move,
-  // before React re-renders, so it must read the latest value from a ref.
   const isTrashZoneActiveRef = useRef(false);
   const notes = useStickyNotesStore((state) => state.notes);
   const addNote = useStickyNotesStore((state) => state.addNote);
@@ -32,8 +29,6 @@ export const StickyNoteWrapper = () => {
     setNoteToEditId(addNote(undefined, initialPosition));
   };
 
-  // Hit-tests the pointer (viewport coordinates), not the note's bounds, so a note
-  // is deleted only when the cursor itself is dropped on the trash zone.
   const handleDragPointerMove = ({ x, y }: { x: number; y: number }) => {
     const bounds = trashZoneRef.current?.getBoundingClientRect();
     if (!bounds) return;

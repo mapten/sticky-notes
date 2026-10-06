@@ -27,19 +27,13 @@ type DragState = {
   y: number;
 };
 
-// Pixels the pointer must travel before a press becomes a drag, so that clicks and
-// double-clicks (which start editing) are not swallowed by tiny accidental movements.
 const DRAG_THRESHOLD = 4;
 
 /**
  * A custom hook for managing the drag behavior of a sticky note.
  * It provides the current position of the note, whether it is being dragged,
  * and event handlers for pointer events to manage dragging.
- *
- * While dragging, the position lives only in local state; the store is updated once
- * in `onDragEnd`, so a drag does not trigger a store write (and localStorage persist)
- * on every pointer move.
- *
+ * 
  * @param options - The options for configuring the drag behavior.
  * @returns An object containing the displayed position, dragging state, and drag event handlers.
  */
@@ -58,8 +52,6 @@ export const useStickyNoteDrag = ({
   const dragStateRef = useRef<DragState | null>(null);
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    // Only primary button, and never when the press starts on an interactive child
-    // (action buttons, resize handle, textarea) so those keep working normally.
     if (
       event.button !== 0
       || disabled
@@ -91,16 +83,12 @@ export const useStickyNoteDrag = ({
       if (Math.hypot(deltaX, deltaY) < DRAG_THRESHOLD) return;
 
       dragState.active = true;
-      // Capture only once the threshold is crossed: capturing on pointerdown would
-      // retarget the click/dblclick events and break double-click to edit.
       event.currentTarget.setPointerCapture(event.pointerId);
       onDragStart();
     }
 
     const requestedX = dragState.noteStartX + deltaX;
     const requestedY = dragState.noteStartY + deltaY;
-    // Clamp so the whole note stays inside the parent. The outer Math.max(0, ...)
-    // handles a parent smaller than the note, pinning it to the top-left corner.
     const parent = elementRef.current?.parentElement;
     const nextPosition = constrainToParent && parent
       ? {
@@ -109,8 +97,6 @@ export const useStickyNoteDrag = ({
         }
       : { x: requestedX, y: requestedY };
 
-    // Mirror the position in the ref: pointerup may fire before React re-renders,
-    // so reading `draggedPosition` there could return a stale value.
     dragState.x = nextPosition.x;
     dragState.y = nextPosition.y;
     setDraggedPosition(nextPosition);
