@@ -9,6 +9,7 @@ import { StickyNoteWrapperTrashZone } from './StickyNoteWrapperTrashZone/StickyN
 export const StickyNoteWrapper = () => {
 
   const [isTrashZoneActive, setIsTrashZoneActive] = useState(false);
+  // The most recently added note, which mounts directly in edit mode.
   const [noteToEditId, setNoteToEditId] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const trashZoneRef = useRef<HTMLDivElement>(null);

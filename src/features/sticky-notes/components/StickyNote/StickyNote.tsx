@@ -47,6 +47,7 @@ export const StickyNote = ({ id, constrainToParent = false, initiallyEditing = f
   const position = currentNote?.position ?? FALLBACK_POSITION;
   const size = currentNote?.size ?? FALLBACK_SIZE;
 
+  // Losing focus while editing saves the draft; Escape discards it instead.
   const handleLostFocus = useCallback(() => {
     if (isEditing) {
       updateContent(id, draftContent);

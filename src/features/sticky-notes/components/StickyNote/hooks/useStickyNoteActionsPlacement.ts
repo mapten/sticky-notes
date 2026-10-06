@@ -9,6 +9,11 @@ type Options = {
   position: { x: number; y: number };
 };
 
+/**
+ * Flips the actions toolbar below the note when there is not enough room above
+ * it inside the parent, where overflow clipping would otherwise hide it.
+ * Measurements happen before paint to avoid showing it in the wrong position.
+ */
 export const useStickyNoteActionsPlacement = ({
   noteRef,
   actionsRef,
@@ -36,6 +41,7 @@ export const useStickyNoteActionsPlacement = ({
       const rootFontSize = Number.parseFloat(
         getComputedStyle(document.documentElement).fontSize,
       ) || 16;
+      // Keep this in sync with the 0.5rem toolbar gap in StickyNote.module.css.
       const actionsGap = rootFontSize * 0.5;
 
       setActionsBelowNote(
