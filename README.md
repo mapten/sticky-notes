@@ -29,7 +29,7 @@ Sticky Notes is a single-page web application for creating, moving, resizing and
 - Built for desktop use, with a minimum screen resolution of 1024x768. Below that size the board stops shrinking and the browser shows scroll bars.
 - Supported browsers: the latest versions of Google Chrome (Windows and Mac), Mozilla Firefox (all platforms) and Microsoft Edge.
 
-## This to improve with more time / usage of 3rd party libraries
+## Things to improve with more time / usage of 3rd party libraries
 
 - I'd probably use a 3rd party tool to position Sticky Note Actions, like `floating-ui`. I also see that it does not work perfectly (tooltips).
 - I'd improve the edit note process. It works well, but probably it can be improved.
