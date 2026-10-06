@@ -31,10 +31,10 @@ describe('StickyNoteActions', () => {
       },
     });
 
-    expect(getByTitle('Move to Front')).toBeDisabled();
-    expect(getByTitle('Move One Step Forward')).toBeDisabled();
-    expect(getByTitle('Move One Step Backward')).toBeDisabled();
-    expect(getByTitle('Move to Back')).not.toBeDisabled();
+    expect(getByTitle('Move to Front')).toHaveAttribute('aria-disabled', 'true');
+    expect(getByTitle('Move One Step Forward')).toHaveAttribute('aria-disabled', 'true');
+    expect(getByTitle('Move One Step Backward')).toHaveAttribute('aria-disabled', 'true');
+    expect(getByTitle('Move to Back')).toHaveAttribute('aria-disabled', 'false');
   });
 
   it('calls the correct callbacks when buttons are clicked', () => {

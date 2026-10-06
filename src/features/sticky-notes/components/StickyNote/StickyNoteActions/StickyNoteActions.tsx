@@ -25,38 +25,43 @@ export const StickyNoteActions = ({isEditing = false, disabled, onMoveToFront, o
     <div className={styles['sticky-note-actions']}>
       <button
         title="Move to Front"
-        disabled={disabled.moveToFront}
-        onClick={onMoveToFront}
+        data-tooltip="Move to Front"
+        aria-disabled={disabled.moveToFront ?? false}
+        onClick={disabled.moveToFront ? undefined : onMoveToFront}
         className={styles['emoji-button']}
       >
         ⏫
       </button>
       <button
         title="Move One Step Forward"
-        disabled={disabled.moveOneStepForward}
-        onClick={onMoveOneStepForward}
+        data-tooltip="Move One Step Forward"
+        aria-disabled={disabled.moveOneStepForward ?? false}
+        onClick={disabled.moveOneStepForward ? undefined : onMoveOneStepForward}
         className={styles['emoji-button']}
       >
         🔽
       </button>
       <button
         title="Move to Back"
-        disabled={disabled.moveToBack}
-        onClick={ onMoveToBack}
+        data-tooltip="Move to Back"
+        aria-disabled={disabled.moveToBack ?? false}
+        onClick={disabled.moveToBack ? undefined : onMoveToBack}
         className={styles['emoji-button']}
       >
         🔼
       </button>
       <button
         title="Move One Step Backward"
-        disabled={disabled.moveOneStepBackward}
-        onClick={onMoveOneStepBackward}
+        data-tooltip="Move One Step Backward"
+        aria-disabled={disabled.moveOneStepBackward ?? false}
+        onClick={disabled.moveOneStepBackward ? undefined : onMoveOneStepBackward}
         className={styles['emoji-button']}
       >
         ⏬
       </button>
       <button
         title={isEditing ? 'Save' : 'Edit Note'}
+        data-tooltip={isEditing ? 'Save' : 'Edit Note'}
         onClick={onEditNote}
         className={styles['emoji-button']}
       >
@@ -65,6 +70,7 @@ export const StickyNoteActions = ({isEditing = false, disabled, onMoveToFront, o
       {isEditing && onCancelEdit && (
         <button
           title="Cancel"
+          data-tooltip="Cancel"
           onClick={onCancelEdit}
           className={styles['emoji-button']}
         >
@@ -74,6 +80,7 @@ export const StickyNoteActions = ({isEditing = false, disabled, onMoveToFront, o
       <div className={styles['color-picker-anchor']}>
         <button
         title="Edit Color"
+        data-tooltip="Edit Color"
         onClick={() => colorInputRef.current?.click()}
         className={styles['emoji-button']}
       >
