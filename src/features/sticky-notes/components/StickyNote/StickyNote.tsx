@@ -47,6 +47,7 @@ export const StickyNote = ({ id, constrainToParent = false, initiallyEditing = f
   const position = currentNote?.position ?? FALLBACK_POSITION;
   const size = currentNote?.size ?? FALLBACK_SIZE;
 
+  // Losing focus while editing saves the draft; Escape discards it instead.
   const handleLostFocus = useCallback(() => {
     if (isEditing) {
       updateContent(id, draftContent);
@@ -134,11 +135,14 @@ export const StickyNote = ({ id, constrainToParent = false, initiallyEditing = f
       {...dragHandlers}
       onFocus={() => setIsFocused(true)}
       onBlur={(event) => {
+        // Ignore blur when focus just moves to a child (textarea, action buttons)
         if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
           handleLostFocus();
         }
       }}
       onKeyDown={(event) => {
+        // Keyboard activation of the note itself; the target check keeps Enter/Space
+        // typed inside the textarea from re-triggering edit mode.
         if (
           event.target === event.currentTarget
           && (event.key === 'Enter' || event.key === ' ' || event.key === 'Space')
@@ -167,6 +171,7 @@ export const StickyNote = ({ id, constrainToParent = false, initiallyEditing = f
           className={`${styles['sticky-note-actions-container']} ${actionsBelowNote ? styles['sticky-note-actions-below'] : ''}`}
           onPointerDown={(event) => event.stopPropagation()}
         >
+          {/* Keep toolbar presses from starting a drag of the note. */}
           <StickyNoteActions
             isEditing={isEditing}
             disabled={{
