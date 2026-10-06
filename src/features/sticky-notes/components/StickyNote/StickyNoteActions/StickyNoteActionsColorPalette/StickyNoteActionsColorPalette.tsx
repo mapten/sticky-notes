@@ -1,11 +1,11 @@
 import { STICKY_NOTE_COLORS } from '../../../../constants/stickyNote.constants';
-import styles from './StickyNoteColorPalette.module.css';
+import styles from './StickyNoteActionsColorPalette.module.css';
 
 type Props = {
   onSelect: (color: string) => void;
 };
 
-export const StickyNoteColorPalette = ({ onSelect }: Props) => {
+export const StickyNoteActionsColorPalette = ({ onSelect }: Props) => {
   return (
     <div
       role="group"

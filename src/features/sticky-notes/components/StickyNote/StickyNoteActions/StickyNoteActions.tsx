@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styles from './StickyNoteActions.module.css';
-import { StickyNoteColorPalette } from './StickyNoteColorPalette/StickyNoteColorPalette';
+import { StickyNoteActionsColorPalette } from './StickyNoteActionsColorPalette/StickyNoteActionsColorPalette';
 
 type Props = {
   isEditing?: boolean;
@@ -91,7 +91,7 @@ export const StickyNoteActions = ({isEditing = false, disabled, onMoveToFront, o
         🎨
       </button>
       {isColorPaletteOpen && (
-        <StickyNoteColorPalette
+        <StickyNoteActionsColorPalette
           onSelect={(color) => {
             onEditColor(color);
             setIsColorPaletteOpen(false);
