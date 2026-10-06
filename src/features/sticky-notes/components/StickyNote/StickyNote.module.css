@@ -7,6 +7,7 @@
   position: absolute;
   display: flex;
   cursor: grab;
+  /* Stops touch devices from scrolling/zooming so pointer events drive the drag */
   touch-action: none;
   user-select: none;
 }
@@ -56,6 +57,7 @@
   resize: none;
   background-color: transparent;
   cursor: text;
+  /* Undo the note's drag-oriented touch-action/user-select so text editing works */
   touch-action: auto;
   user-select: text;
 }
