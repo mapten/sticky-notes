@@ -24,24 +24,7 @@ export const StickyNoteActions = ({isEditing = false, disabled, onMoveToFront, o
   
   return (
     <div className={styles['sticky-note-actions']}>
-      <button
-        title="Move to Front"
-        data-tooltip="Move to Front"
-        aria-disabled={disabled.moveToFront ?? false}
-        onClick={disabled.moveToFront ? undefined : onMoveToFront}
-        className={styles['emoji-button']}
-      >
-        ⏫
-      </button>
-      <button
-        title="Move One Step Forward"
-        data-tooltip="Move One Step Forward"
-        aria-disabled={disabled.moveOneStepForward ?? false}
-        onClick={disabled.moveOneStepForward ? undefined : onMoveOneStepForward}
-        className={styles['emoji-button']}
-      >
-        🔽
-      </button>
+
       <button
         title="Move to Back"
         data-tooltip="Move to Back"
@@ -49,7 +32,7 @@ export const StickyNoteActions = ({isEditing = false, disabled, onMoveToFront, o
         onClick={disabled.moveToBack ? undefined : onMoveToBack}
         className={styles['emoji-button']}
       >
-        🔼
+        ⏬
       </button>
       <button
         title="Move One Step Backward"
@@ -58,7 +41,25 @@ export const StickyNoteActions = ({isEditing = false, disabled, onMoveToFront, o
         onClick={disabled.moveOneStepBackward ? undefined : onMoveOneStepBackward}
         className={styles['emoji-button']}
       >
-        ⏬
+        🔽
+      </button>
+      <button
+        title="Move One Step Forward"
+        data-tooltip="Move One Step Forward"
+        aria-disabled={disabled.moveOneStepForward ?? false}
+        onClick={disabled.moveOneStepForward ? undefined : onMoveOneStepForward}
+        className={styles['emoji-button']}
+      >
+        🔼
+      </button>
+      <button
+        title="Move to Front"
+        data-tooltip="Move to Front"
+        aria-disabled={disabled.moveToFront ?? false}
+        onClick={disabled.moveToFront ? undefined : onMoveToFront}
+        className={styles['emoji-button']}
+      >
+        ⏫
       </button>
       <button
         title={isEditing ? 'Save' : 'Edit Note'}
