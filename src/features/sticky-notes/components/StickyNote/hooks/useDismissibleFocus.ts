@@ -5,12 +5,13 @@ type Options = {
   elementRef: RefObject<HTMLElement | null>;
   active: boolean;
   onDismiss: () => void;
+  onEscape?: () => void;
 };
 
 /**
  * A custom hook for managing dismissible focus behavior.
  */
-export const useDismissibleFocus = ({ elementRef, active, onDismiss }: Options) => {
+export const useDismissibleFocus = ({ elementRef, active, onDismiss, onEscape }: Options) => {
   useEffect(() => {
     if (!active) return;
 
@@ -22,7 +23,7 @@ export const useDismissibleFocus = ({ elementRef, active, onDismiss }: Options) 
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        onDismiss();
+        (onEscape ?? onDismiss)();
         elementRef.current?.blur();
       }
     };
@@ -34,5 +35,5 @@ export const useDismissibleFocus = ({ elementRef, active, onDismiss }: Options) 
       document.removeEventListener('pointerdown', handlePointerDown);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [active, elementRef, onDismiss]);
+  }, [active, elementRef, onDismiss, onEscape]);
 };

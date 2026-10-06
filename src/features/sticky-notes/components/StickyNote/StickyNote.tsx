@@ -45,6 +45,16 @@ export const StickyNote = ({ id, constrainToParent = false, onDragPointerMove, o
   const size = currentNote?.size ?? FALLBACK_SIZE;
 
   const handleLostFocus = useCallback(() => {
+    if (isEditing) {
+      updateContent(id, draftContent);
+    }
+
+    setIsFocused(false);
+    setIsEditing(false);
+    setDraftContent('');
+  }, [draftContent, id, isEditing, updateContent]);
+
+  const handleEscape = useCallback(() => {
     setIsFocused(false);
     setIsEditing(false);
     setDraftContent('');
@@ -54,6 +64,7 @@ export const StickyNote = ({ id, constrainToParent = false, onDragPointerMove, o
     elementRef: stickyNoteRef,
     active: isFocused,
     onDismiss: handleLostFocus,
+    onEscape: handleEscape,
   });
 
   const { displayedPosition, isDragging, dragHandlers } = useStickyNoteDrag({

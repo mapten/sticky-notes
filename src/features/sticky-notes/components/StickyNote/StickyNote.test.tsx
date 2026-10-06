@@ -106,11 +106,14 @@ describe('StickyNote', () => {
 
     await user.dblClick(screen.getByText(note.content));
 
-    expect(screen.getByRole('textbox')).toHaveValue(note.content);
+    const textarea = screen.getByRole('textbox');
+    await user.clear(textarea);
+    await user.type(textarea, 'Discard this change');
 
     await user.keyboard('{Escape}');
 
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(useStickyNotesStore.getState().notes[0].content).toBe(note.content);
   });
 
   it('exits edit mode when the Save button is clicked', async () => {
@@ -152,12 +155,15 @@ describe('StickyNote', () => {
 
     await user.dblClick(screen.getByText(note.content));
 
-    expect(screen.getByRole('textbox')).toHaveValue(note.content);
+    const textarea = screen.getByRole('textbox');
+    await user.clear(textarea);
+    await user.type(textarea, 'Saved by clicking outside');
 
     const outsideButton = screen.getByText('Outside Button');
     await user.click(outsideButton);
 
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(useStickyNotesStore.getState().notes[0].content).toBe('Saved by clicking outside');
   });
 
   it('exits edit mode when the note loses focus', async () => {
