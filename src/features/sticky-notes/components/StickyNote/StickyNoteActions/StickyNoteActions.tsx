@@ -14,10 +14,11 @@ type Props = {
   onMoveOneStepBackward: () => void;
   onMoveToBack: () => void;
   onEditNote: () => void;
+  onCancelEdit?: () => void;
   onEditColor: (color: string) => void;
 };
 
-export const StickyNoteActions = ({isEditing = false, disabled, onMoveToFront, onMoveOneStepForward, onMoveOneStepBackward, onMoveToBack, onEditNote, onEditColor}: Props) => {
+export const StickyNoteActions = ({isEditing = false, disabled, onMoveToFront, onMoveOneStepForward, onMoveOneStepBackward, onMoveToBack, onEditNote, onCancelEdit, onEditColor}: Props) => {
   const colorInputRef = useRef<HTMLInputElement>(null);
   
   return (
@@ -55,12 +56,21 @@ export const StickyNoteActions = ({isEditing = false, disabled, onMoveToFront, o
         ⏬
       </button>
       <button
-        title={isEditing ? 'Save Note' : 'Edit Note'}
+        title={isEditing ? 'Save' : 'Edit Note'}
         onClick={onEditNote}
         className={styles['emoji-button']}
       >
         {isEditing ? '💾' : '✏️'}
       </button>
+      {isEditing && onCancelEdit && (
+        <button
+          title="Cancel"
+          onClick={onCancelEdit}
+          className={styles['emoji-button']}
+        >
+          ✖️
+        </button>
+      )}
       <div className={styles['color-picker-anchor']}>
         <button
         title="Edit Color"

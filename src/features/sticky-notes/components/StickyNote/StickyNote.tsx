@@ -13,6 +13,8 @@ import { getNoteLayerState } from './utils/getNoteLayerState';
 type Props = {
   id: StickyNoteModel['id'];
   constrainToParent?: boolean;
+  onDragPointerMove?: (pointer: { x: number; y: number }) => void;
+  onDragFinished?: () => void;
 };
 
 const FALLBACK_POSITION = { x: 0, y: 0, z: 0 };
@@ -21,7 +23,7 @@ const FALLBACK_SIZE = {
   height: STICKY_NOTE_MIN_HEIGHT,
 };
 
-export const StickyNote = ({ id, constrainToParent = false }: Props) => {
+export const StickyNote = ({ id, constrainToParent = false, onDragPointerMove, onDragFinished }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
   const [draftContent, setDraftContent] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -61,7 +63,9 @@ export const StickyNote = ({ id, constrainToParent = false }: Props) => {
     disabled: isEditing,
     constrainToParent,
     onDragStart: () => setIsFocused(true),
+    onDragMove: onDragPointerMove,
     onDragEnd: ({ x, y }) => moveNoteCardinal(id, x, y),
+    onDragFinish: onDragFinished,
   });
 
   const { displayedSize, resizeHandlers } = useStickyNoteResize({
@@ -96,6 +100,11 @@ export const StickyNote = ({ id, constrainToParent = false }: Props) => {
     setDraftContent('');
   };
 
+  const handleCancelEditing = () => {
+    setIsEditing(false);
+    setDraftContent('');
+  };
+
   return (
     <div
       ref={stickyNoteRef}
@@ -110,10 +119,11 @@ export const StickyNote = ({ id, constrainToParent = false }: Props) => {
       onKeyDown={(event) => {
         if (
           event.target === event.currentTarget
-          && (event.key === 'Enter' || event.key === ' ')
+          && (event.key === 'Enter' || event.key === ' ' || event.key === 'Space')
         ) {
           event.preventDefault();
           setIsFocused(true);
+          handleStartEditing();
         }
       }}
       tabIndex={0}
@@ -147,6 +157,7 @@ export const StickyNote = ({ id, constrainToParent = false }: Props) => {
             onMoveOneStepBackward={() => moveNoteOneStepBack(id)}
             onMoveToBack={() => moveNoteToBack(id)}
             onEditNote={isEditing ? handleSave : handleStartEditing}
+            onCancelEdit={handleCancelEditing}
             onEditColor={(newColor) => updateColor(id, newColor)}
           />
         </div>

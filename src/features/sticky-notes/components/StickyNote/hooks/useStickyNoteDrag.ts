@@ -11,7 +11,9 @@ type Options = {
   disabled: boolean;
   constrainToParent: boolean;
   onDragStart: () => void;
+  onDragMove?: (pointer: Point) => void;
   onDragEnd: (position: Point) => void;
+  onDragFinish?: () => void;
 };
 
 type DragState = {
@@ -42,7 +44,9 @@ export const useStickyNoteDrag = ({
   disabled,
   constrainToParent,
   onDragStart,
+  onDragMove,
   onDragEnd,
+  onDragFinish,
 }: Options) => {
   const [draggedPosition, setDraggedPosition] = useState<Point | null>(null);
   const dragStateRef = useRef<DragState | null>(null);
@@ -96,6 +100,7 @@ export const useStickyNoteDrag = ({
     dragState.x = nextPosition.x;
     dragState.y = nextPosition.y;
     setDraggedPosition(nextPosition);
+    onDragMove?.({ x: event.clientX, y: event.clientY });
   };
 
   const handlePointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -107,12 +112,16 @@ export const useStickyNoteDrag = ({
         event.currentTarget.releasePointerCapture(event.pointerId);
       }
       onDragEnd({ x: dragState.x, y: dragState.y });
+      onDragFinish?.();
     }
     dragStateRef.current = null;
     setDraggedPosition(null);
   };
 
   const handlePointerCancel = () => {
+    if (dragStateRef.current?.active) {
+      onDragFinish?.();
+    }
     dragStateRef.current = null;
     setDraggedPosition(null);
   };
