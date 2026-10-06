@@ -1,5 +1,7 @@
 # Sticky Notes
 
+![Sticky notes board](docs/screenshot.png)
+
 Sticky Notes is a single-page web application for creating, moving, resizing and deleting sticky notes on a board. It is built with React and TypeScript, without stock UI components.
 
 ## Features
@@ -94,6 +96,8 @@ Lints the code with ESLint.
 ## Architecture
 
 The code is organised by feature: everything related to sticky notes is in `src/features/sticky-notes`, split into `components`, `store`, `models` and `constants`. The note data (id, content, colour, size and an `x/y/z` position) lives in a single Zustand store. The store holds the domain logic: creating and deleting notes, updating them, and managing stacking order. Stacking order is always kept as the contiguous sequence 1..n, so "move one step" always swaps with the neighbouring note and z-indexes never keep growing. The store is persisted to `localStorage` with Zustand's `persist` middleware.
+
+The idea was to create all functionality inside features folder, supposing that we are in a bigger frontend application, and we want to separate logic by domains. At any point, if any of the components / state / constants is needed to be used in multiple parts of the application, not only in sticky-notes domain, it will be moved to a generic folder in src (for example, src/constants). Doing that way, we decouple logic between different domains.
 
 The UI is split into small components. `StickyNoteWrapper` is the board: it adds notes and owns the trash zone. `StickyNote` renders a single note, `StickyNoteActions` is its floating toolbar and `StickyNoteActionsColorPalette` is the colour picker. The interaction logic is kept in custom hooks so the components stay declarative and the behaviour can be tested on its own. `useStickyNoteDrag`, `useStickyNoteResize` and `useStickyNoteDraw` (drawing new notes on the board) use Pointer Events with pointer capture. `useDismissibleFocus` handles clicking outside the note and pressing Escape. `useStickyNoteActionsPlacement` flips the toolbar below the note when there isn't room for it above.
 
