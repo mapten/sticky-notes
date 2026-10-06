@@ -61,6 +61,42 @@ describe('stickyNotesStore', () => {
     });
   });
 
+  it('adds a note with default values when no note is provided', () => {
+    store.addNote({
+      id: 'n1',
+      size: { width: 100, height: 100 },
+      content: 'First note',
+      color: '#fef3c7',
+      position: {
+        x: 10,
+        y: 20,
+        z: 0,
+      },
+    });
+    store.addNote({
+      id: 'n2',
+      size: { width: 100, height: 100 },
+      content: 'Second note',
+      color: '#fef3c7',
+      position: {
+        x: 10,
+        y: 20,
+        z: 1,
+      },
+    });
+
+    store.addNote();
+
+    const addedNote = useStickyNotesStore.getState().notes[2];
+
+    expect(addedNote).toMatchObject({
+      size: { width: 200, height: 200 },
+      content: '',
+      color: '#fff59d',
+      position: { x: 0, y: 0, z: 2 },
+    });
+  });
+
   it('updates an existing content', () => {
     store.addNote({
       id: 'n1',
@@ -153,7 +189,7 @@ describe('stickyNotesStore', () => {
 
     store.moveNoteOneStepBack('n1');
 
-    expect(useStickyNotesStore.getState().notes[0].position).toEqual({ x: 0, y: 0, z: -1 });
+    expect(useStickyNotesStore.getState().notes[0].position).toEqual({ x: 0, y: 0, z: 1 });
   });
 
   it('moves a note to the front (highest z-index)', () => {
@@ -198,7 +234,32 @@ describe('stickyNotesStore', () => {
 
     store.moveNoteToBack('n2');
 
-    expect(useStickyNotesStore.getState().notes.find(note => note.id === 'n2')?.position.z).toBe(-1);
+    expect(useStickyNotesStore.getState().notes.find(note => note.id === 'n2')?.position.z).toBe(1);
+  });
+
+  it('reindexes every note without z-index gaps after stacking changes', () => {
+    const notes = [
+      { id: 'n1', size: { width: 100, height: 100 }, content: '', color: '#fff', position: { x: 0, y: 0, z: 10 } },
+      { id: 'n2', size: { width: 100, height: 100 }, content: '', color: '#fff', position: { x: 0, y: 0, z: 30 } },
+      { id: 'n3', size: { width: 100, height: 100 }, content: '', color: '#fff', position: { x: 0, y: 0, z: 50 } },
+    ];
+    const cases = [
+      { move: () => useStickyNotesStore.getState().moveNoteOneStepFront('n1'), expectedOrder: ['n2', 'n1', 'n3'] },
+      { move: () => useStickyNotesStore.getState().moveNoteOneStepBack('n3'), expectedOrder: ['n1', 'n3', 'n2'] },
+      { move: () => useStickyNotesStore.getState().moveNoteToFront('n1'), expectedOrder: ['n2', 'n3', 'n1'] },
+      { move: () => useStickyNotesStore.getState().moveNoteToBack('n3'), expectedOrder: ['n3', 'n1', 'n2'] },
+    ];
+
+    for (const { move, expectedOrder } of cases) {
+      useStickyNotesStore.setState({ notes });
+      move();
+
+      const orderedNotes = [...useStickyNotesStore.getState().notes]
+        .sort((a, b) => a.position.z - b.position.z);
+
+      expect(orderedNotes.map((note) => note.id)).toEqual(expectedOrder);
+      expect(orderedNotes.map((note) => note.position.z)).toEqual([1, 2, 3]);
+    }
   });
 
   it('removes a note by id', () => {
@@ -220,6 +281,22 @@ describe('stickyNotesStore', () => {
     store.deleteNote('n1');
 
     expect(useStickyNotesStore.getState().notes.map((note) => note.id)).toEqual(['n2']);
+  });
+
+  it('reindexes the remaining layers after deleting a note', () => {
+    useStickyNotesStore.setState({
+      notes: [
+        { id: 'n1', size: { width: 100, height: 100 }, content: '', color: '#fff', position: { x: 0, y: 0, z: 2 } },
+        { id: 'n2', size: { width: 100, height: 100 }, content: '', color: '#fff', position: { x: 0, y: 0, z: 7 } },
+        { id: 'n3', size: { width: 100, height: 100 }, content: '', color: '#fff', position: { x: 0, y: 0, z: 12 } },
+      ],
+    });
+
+    useStickyNotesStore.getState().deleteNote('n2');
+
+    const remainingNotes = useStickyNotesStore.getState().notes;
+    expect(remainingNotes.map((note) => note.id)).toEqual(['n1', 'n3']);
+    expect(remainingNotes.map((note) => note.position.z)).toEqual([1, 2]);
   });
 
   it('resets the store to its initial state', () => {

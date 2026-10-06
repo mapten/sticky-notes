@@ -43,7 +43,7 @@ describe('StickyNote', () => {
     render(<StickyNote id={note.id} />);
 
     const noteElement = screen.getByTestId(`sticky-note-${note.id}`);
-    noteElement.focus();
+    await user.click(noteElement);
 
     await user.keyboard('{Enter}');
 
@@ -59,7 +59,7 @@ describe('StickyNote', () => {
     render(<StickyNote id={note.id} />);
 
     const noteElement = screen.getByTestId(`sticky-note-${note.id}`);
-    noteElement.focus();
+    await user.click(noteElement);
 
     await user.keyboard('{Space}');
 
@@ -75,7 +75,7 @@ describe('StickyNote', () => {
     render(<StickyNote id={note.id} />);
 
     const noteElement = screen.getByTestId(`sticky-note-${note.id}`);
-    noteElement.focus();
+    await user.click(noteElement);
 
     const colorButton = screen.getByTitle('Edit Color');
     colorButton.focus();
@@ -90,7 +90,7 @@ describe('StickyNote', () => {
     render(<StickyNote id={note.id} />);
 
     const noteElement = screen.getByTestId(`sticky-note-${note.id}`);
-    noteElement.focus();
+    await user.click(noteElement);
 
     const colorButton = screen.getByTitle('Edit Color');
     colorButton.focus();

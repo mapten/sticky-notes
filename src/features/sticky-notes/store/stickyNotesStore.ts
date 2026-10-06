@@ -3,13 +3,15 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 // Types
 import type { StickyNote } from '../models/StickyNote';
+import { STICKY_NOTE_BASE_COLOR, STICKY_NOTE_MIN_HEIGHT, STICKY_NOTE_MIN_WIDTH } from '../constants/stickyNote.constants';
+import { nanoid } from 'nanoid/non-secure';
 
 type State = {
     notes: StickyNote[];
 }
 
 type Actions = {
-    addNote: (note: StickyNote) => void;
+    addNote: (note?: StickyNote) => void;
     updateColor: (id: string, color: string) => void;
     updateContent: (id: string, content: string) => void;
     updateSize: (id: string, size: { width: number; height: number }) => void;
@@ -29,6 +31,14 @@ type Actions = {
 
 export type StickyNotesStore = State & Actions;
 
+const createInitialNote = (z: number): StickyNote => ({
+    id: nanoid(),
+    color: STICKY_NOTE_BASE_COLOR,
+    size: { width: STICKY_NOTE_MIN_WIDTH, height: STICKY_NOTE_MIN_HEIGHT },
+    content: '',
+    position: { x: 0, y: 0, z },
+});
+
 const intialState: State = {
     notes: [],
 }
@@ -39,9 +49,40 @@ const unavailableStorage = {
     removeItem: () => undefined,
 };
 
+const normalizeNoteLayers = (notes: StickyNote[]) => (
+    notes.map((note, index) => ({
+        ...note,
+        position: { ...note.position, z: index + 1 },
+    }))
+);
+
+const reorderNotes = (
+    notes: StickyNote[],
+    id: string,
+    getTargetIndex: (currentIndex: number, lastIndex: number) => number,
+) => {
+    const orderedNotes = [...notes].sort((a, b) => a.position.z - b.position.z);
+    const currentIndex = orderedNotes.findIndex((note) => note.id === id);
+
+    if (currentIndex === -1) return notes;
+
+    const [movedNote] = orderedNotes.splice(currentIndex, 1);
+    const targetIndex = Math.min(
+        Math.max(0, getTargetIndex(currentIndex, orderedNotes.length)),
+        orderedNotes.length,
+    );
+    orderedNotes.splice(targetIndex, 0, movedNote);
+
+    return normalizeNoteLayers(orderedNotes);
+};
+
 export const useStickyNotesStore = create<StickyNotesStore>()(persist((set) => ({
     ...intialState,
-    addNote: (note: StickyNote) => set((state) => ({ notes: [...state.notes, note] })),
+    addNote: (note: StickyNote | undefined) => set((state) => {
+      const newZ = state.notes.length > 0 ? Math.max(...state.notes.map((note) => note.position.z)) + 1 : 1;
+
+      return { notes: [...state.notes, note ?? createInitialNote(newZ)] }
+    }),
 
     updateColor: (id: string, color: string) => set((state) => ({
         notes: state.notes.map((note) => note.id === id ? { ...note, color } : note)
@@ -60,28 +101,29 @@ export const useStickyNotesStore = create<StickyNotesStore>()(persist((set) => (
     })),
 
     moveNoteOneStepFront: (id: string) => set((state) => ({
-        notes: state.notes.map((note) => note.id === id ? { ...note, position: { ...note.position, z: note.position.z + 1 } } : note)
+        notes: reorderNotes(state.notes, id, (currentIndex, lastIndex) =>
+            Math.min(currentIndex + 1, lastIndex)),
     })),
 
     moveNoteOneStepBack: (id: string) => set((state) => ({
-        notes: state.notes.map((note) => note.id === id ? { ...note, position: { ...note.position, z: note.position.z - 1 } } : note)
+        notes: reorderNotes(state.notes, id, (currentIndex) => currentIndex - 1),
     })),
 
-    moveNoteToFront: (id: string) => set((state) => {
-        const maxZ = Math.max(...state.notes.map((note) => note.position.z));
-        return {
-            notes: state.notes.map((note) => note.id === id ? { ...note, position: { ...note.position, z: maxZ + 1 } } : note)
-        };
-    }),
+    moveNoteToFront: (id: string) => set((state) => ({
+        notes: reorderNotes(state.notes, id, (_currentIndex, lastIndex) => lastIndex),
+    })),
 
-    moveNoteToBack: (id: string) => set((state) => {
-        const minZ = Math.min(...state.notes.map((note) => note.position.z));
-        return {
-            notes: state.notes.map((note) => note.id === id ? { ...note, position: { ...note.position, z: minZ - 1 } } : note)
-        };
-    }),
+    moveNoteToBack: (id: string) => set((state) => ({
+        notes: reorderNotes(state.notes, id, () => 0),
+    })),
 
-    deleteNote: (id: string) => set((state) => ({ notes: state.notes.filter((note) => note.id !== id) })),
+    deleteNote: (id: string) => set((state) => ({
+        notes: normalizeNoteLayers(
+            state.notes
+                .filter((note) => note.id !== id)
+                .sort((a, b) => a.position.z - b.position.z),
+        ),
+    })),
     
     reset: () => set(intialState),
 }), {
