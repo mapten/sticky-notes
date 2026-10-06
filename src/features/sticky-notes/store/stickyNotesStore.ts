@@ -20,9 +20,9 @@ type Actions = {
     /** Moves a note one step backward in the z-index */
     moveNoteOneStepBack: (id: string) => void;
     /** Moves a note to the front (highest z-index) */
-    MoveNoteToFront: (id: string) => void;
+    moveNoteToFront: (id: string) => void;
     /** Moves a note to the back (lowest z-index) */
-    MoveNoteToBack: (id: string) => void;
+    moveNoteToBack: (id: string) => void;
     deleteNote: (id: string) => void;
     reset: () => void;
 }
@@ -67,14 +67,14 @@ export const useStickyNotesStore = create<StickyNotesStore>()(persist((set) => (
         notes: state.notes.map((note) => note.id === id ? { ...note, position: { ...note.position, z: note.position.z - 1 } } : note)
     })),
 
-    MoveNoteToFront: (id: string) => set((state) => {
+    moveNoteToFront: (id: string) => set((state) => {
         const maxZ = Math.max(...state.notes.map((note) => note.position.z));
         return {
             notes: state.notes.map((note) => note.id === id ? { ...note, position: { ...note.position, z: maxZ + 1 } } : note)
         };
     }),
 
-    MoveNoteToBack: (id: string) => set((state) => {
+    moveNoteToBack: (id: string) => set((state) => {
         const minZ = Math.min(...state.notes.map((note) => note.position.z));
         return {
             notes: state.notes.map((note) => note.id === id ? { ...note, position: { ...note.position, z: minZ - 1 } } : note)

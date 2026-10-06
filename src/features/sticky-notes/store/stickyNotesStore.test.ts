@@ -174,7 +174,7 @@ describe('stickyNotesStore', () => {
       position: { x: 10, y: 10, z: 1 },
     });
 
-    store.MoveNoteToFront('n1');
+    store.moveNoteToFront('n1');
 
     expect(useStickyNotesStore.getState().notes.find(note => note.id === 'n1')?.position.z).toBe(2);
   });
@@ -196,7 +196,7 @@ describe('stickyNotesStore', () => {
       position: { x: 10, y: 10, z: 1 },
     });
 
-    store.MoveNoteToBack('n2');
+    store.moveNoteToBack('n2');
 
     expect(useStickyNotesStore.getState().notes.find(note => note.id === 'n2')?.position.z).toBe(-1);
   });

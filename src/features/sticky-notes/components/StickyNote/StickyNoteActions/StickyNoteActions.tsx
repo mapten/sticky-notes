@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import styles from './StickyNoteActions.module.css';
 
 type Props = {
+  isEditing?: boolean;
   disabled: Partial<{
     moveToFront: boolean;
     moveOneStepForward: boolean;
@@ -16,7 +17,7 @@ type Props = {
   onEditColor: (color: string) => void;
 };
 
-export const StickyNoteActions = ({disabled, onMoveToFront, onMoveOneStepForward, onMoveOneStepBackward, onMoveToBack, onEditNote, onEditColor}: Props) => {
+export const StickyNoteActions = ({isEditing = false, disabled, onMoveToFront, onMoveOneStepForward, onMoveOneStepBackward, onMoveToBack, onEditNote, onEditColor}: Props) => {
   const colorInputRef = useRef<HTMLInputElement>(null);
   
   return (
@@ -54,11 +55,11 @@ export const StickyNoteActions = ({disabled, onMoveToFront, onMoveOneStepForward
         ⏬
       </button>
       <button
-        title="Edit Note"
+        title={isEditing ? 'Save Note' : 'Edit Note'}
         onClick={onEditNote}
         className={styles['emoji-button']}
       >
-        ✏️
+        {isEditing ? '💾' : '✏️'}
       </button>
       <div className={styles['color-picker-anchor']}>
         <button
