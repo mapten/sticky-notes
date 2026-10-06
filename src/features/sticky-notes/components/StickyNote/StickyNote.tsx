@@ -14,6 +14,7 @@ import { getNoteLayerState } from './utils/getNoteLayerState';
 type Props = {
   id: StickyNoteModel['id'];
   constrainToParent?: boolean;
+  initiallyEditing?: boolean;
   onDragPointerMove?: (pointer: { x: number; y: number }) => void;
   onDragFinished?: () => void;
 };
@@ -24,10 +25,10 @@ const FALLBACK_SIZE = {
   height: STICKY_NOTE_MIN_HEIGHT,
 };
 
-export const StickyNote = ({ id, constrainToParent = false, onDragPointerMove, onDragFinished }: Props) => {
-  const [isEditing, setIsEditing] = useState(false);
+export const StickyNote = ({ id, constrainToParent = false, initiallyEditing = false, onDragPointerMove, onDragFinished }: Props) => {
+  const [isEditing, setIsEditing] = useState(initiallyEditing);
   const [draftContent, setDraftContent] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
+  const [isFocused, setIsFocused] = useState(initiallyEditing);
   const stickyNoteRef = useRef<HTMLDivElement>(null);
   const stickyNoteActionsRef = useRef<HTMLDivElement>(null);
 

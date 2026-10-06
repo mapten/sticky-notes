@@ -72,9 +72,14 @@ describe('StickyNoteWrapper', () => {
     expect(screen.queryByTestId('sticky-note-note-to-delete')).not.toBeInTheDocument();
   });
 
-  it('adds a new note when the add-note control is clicked', () => {
+  it('adds a new note centered, focused, and in edit mode', () => {
     useStickyNotesStore.setState({ notes: [] });
     render(<StickyNoteWrapper />);
+
+    const canvas = screen.getByLabelText('Trash zone').parentElement;
+    if (!canvas) throw new Error('Sticky note canvas was not rendered');
+    Object.defineProperty(canvas, 'clientWidth', { configurable: true, value: 800 });
+    Object.defineProperty(canvas, 'clientHeight', { configurable: true, value: 600 });
 
     const addNoteButton = screen.getByRole('button', { name: 'Add Note' });
     fireEvent.click(addNoteButton);
@@ -82,6 +87,9 @@ describe('StickyNoteWrapper', () => {
     const notes = useStickyNotesStore.getState().notes;
     expect(notes).toHaveLength(1);
     expect(notes[0].content).toBe('');
+    expect(notes[0].position).toEqual({ x: 325, y: 225, z: 1 });
+    expect(screen.getByRole('textbox')).toHaveFocus();
+    expect(screen.getByTestId(`sticky-note-${notes[0].id}`)).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('renders multiple notes', () => {
