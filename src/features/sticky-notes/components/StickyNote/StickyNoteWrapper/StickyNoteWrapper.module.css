@@ -59,3 +59,33 @@
   border-radius: 0.5rem;
   background: #fff;
 }
+
+/* Covers the whole board (above notes and trash zone) while adding a note */
+.sticky-note-wrapper-draw-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 10000;
+  background-color: rgba(255, 122, 43, 0.04);
+  cursor: crosshair;
+  user-select: none;
+  touch-action: none;
+}
+
+.sticky-note-wrapper-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.sticky-note-wrapper-hint {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.sticky-note-wrapper-draft {
+  position: absolute;
+  border: 2px dashed #ff7a2b;
+  border-radius: 4px;
+  background-color: rgba(255, 245, 157, 0.6);
+  pointer-events: none;
+}

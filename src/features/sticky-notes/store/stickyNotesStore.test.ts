@@ -98,6 +98,16 @@ describe('stickyNotesStore', () => {
     });
   });
 
+  it('adds a default note at the given position and size', () => {
+    store.addNote(undefined, { x: 40, y: 60 }, { width: 220, height: 180 });
+
+    expect(useStickyNotesStore.getState().notes[0]).toMatchObject({
+      size: { width: 220, height: 180 },
+      content: '',
+      position: { x: 40, y: 60, z: 1 },
+    });
+  });
+
   it('updates an existing content', () => {
     store.addNote({
       id: 'n1',

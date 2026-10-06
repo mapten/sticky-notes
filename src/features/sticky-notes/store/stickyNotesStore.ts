@@ -14,6 +14,7 @@ type Actions = {
     addNote: (
         note?: StickyNote,
         initialPosition?: Pick<StickyNote['position'], 'x' | 'y'>,
+        initialSize?: StickyNote['size'],
     ) => string;
     updateColor: (id: string, color: string) => void;
     updateContent: (id: string, content: string) => void;
@@ -37,10 +38,11 @@ export type StickyNotesStore = State & Actions;
 const createInitialNote = (
     z: number,
     initialPosition: Pick<StickyNote['position'], 'x' | 'y'> = { x: 0, y: 0 },
+    initialSize: StickyNote['size'] = { width: STICKY_NOTE_MIN_WIDTH, height: STICKY_NOTE_MIN_HEIGHT },
 ): StickyNote => ({
     id: nanoid(),
     color: STICKY_NOTE_BASE_COLOR,
-    size: { width: STICKY_NOTE_MIN_WIDTH, height: STICKY_NOTE_MIN_HEIGHT },
+    size: { ...initialSize },
     content: '',
     position: { ...initialPosition, z },
 });
@@ -95,10 +97,11 @@ export const useStickyNotesStore = create<StickyNotesStore>()(persist((set, get)
         addNote: (
             note?: StickyNote,
             initialPosition?: Pick<StickyNote['position'], 'x' | 'y'>,
+            initialSize?: StickyNote['size'],
         ) => {
             const notes = get().notes;
             const newZ = notes.length > 0 ? Math.max(...notes.map((note) => note.position.z)) + 1 : 1;
-            const addedNote = note ?? createInitialNote(newZ, initialPosition);
+            const addedNote = note ?? createInitialNote(newZ, initialPosition, initialSize);
 
             set((state) => ({ notes: [...state.notes, addedNote] }));
             return addedNote.id;

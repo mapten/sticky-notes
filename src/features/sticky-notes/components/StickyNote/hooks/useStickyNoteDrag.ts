@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react';
 import type { PointerEvent as ReactPointerEvent, RefObject } from 'react';
 
+import { STICKY_NOTE_DRAG_THRESHOLD } from '../../../constants/stickyNote.constants';
+
 type Point = { x: number; y: number };
 type Size = { width: number; height: number };
 
@@ -26,10 +28,6 @@ type DragState = {
   x: number;
   y: number;
 };
-
-// Pixels the pointer must travel before a press becomes a drag, so that clicks and
-// double-clicks (which start editing) are not swallowed by tiny accidental movements.
-const DRAG_THRESHOLD = 4;
 
 /**
  * A custom hook for managing the drag behavior of a sticky note.
@@ -88,7 +86,7 @@ export const useStickyNoteDrag = ({
     const deltaY = event.clientY - dragState.startY;
 
     if (!dragState.active) {
-      if (Math.hypot(deltaX, deltaY) < DRAG_THRESHOLD) return;
+      if (Math.hypot(deltaX, deltaY) < STICKY_NOTE_DRAG_THRESHOLD) return;
 
       dragState.active = true;
       // Capture only once the threshold is crossed: capturing on pointerdown would
