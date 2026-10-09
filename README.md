@@ -6,8 +6,6 @@ Sticky Notes is a single-page web application for creating, moving, resizing and
 
 ## Features
 
-### Required
-
 - **Create a note of a specified size at a specified position:** click "Add Note", then drag on the board to draw the note. A dashed preview follows the pointer. If the drawn note is smaller than the minimum size (150x150px), it grows to that size when created, so a plain click creates a minimum-size note at that point. Press Esc or "Cancel" to stop adding. New notes open in edit mode, ready for typing.
 - **Resize a note by dragging:** drag the handle in the bottom-right corner. Notes can't get smaller than the minimum size or extend past the board.
 - **Move a note by dragging:** drag the note anywhere on the board. It stays inside the board.
@@ -28,16 +26,6 @@ Sticky Notes is a single-page web application for creating, moving, resizing and
 
 - Built for desktop use, with a minimum screen resolution of 1024x768. Below that size the board stops shrinking and the browser shows scroll bars.
 - Supported browsers: the latest versions of Google Chrome (Windows and Mac), Mozilla Firefox (all platforms) and Microsoft Edge.
-
-## Things to improve with more time / usage of 3rd party libraries
-
-- I'd probably use a 3rd party tool to position Sticky Note Actions, like `floating-ui`. I also see that it does not work perfectly (tooltips).
-- I'd improve the edit note process. It works well, but probably it can be improved.
-- I'd use icons (like Material Icons or similar) instead of emojis.
-- I'd add end to end tests with Playwright.
-- I'd add `msw` library to simulate real API calls.
-- I'd imporve accesibility.
-- I've enjoyed working on this, so had some features that I wanted to add!
 
 ## Technologies
 
